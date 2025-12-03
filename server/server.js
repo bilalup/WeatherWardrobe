@@ -14,22 +14,30 @@ app.get('/', (req, res) => {
     res.json('Hello World!')
 })
 
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'OK',
+        message: 'Your API is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Weather Endpoint
 app.get('/api/weather/:city', async (req, res) => { // Changed to /api/weather for consistency
     try {
         const city = req.params.city;
-    
+
         if (!city) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'City parameter is required' 
+            return res.status(400).json({
+                success: false,
+                error: 'City parameter is required'
             });
         }
 
         console.log(`Weather request for city: ${city}`);
-        
+
         const API_KEY = process.env.OPENWEATHER_API_KEY;
-        
+
         // FIXED: Simplified the API key check
         if (!API_KEY) {
             return res.status(500).json({
@@ -40,7 +48,7 @@ app.get('/api/weather/:city', async (req, res) => { // Changed to /api/weather f
 
         // Make request to OpenWeatherMap
         const response = await axios.get(
-            'https://api.openweathermap.org/data/2.5/weather', 
+            'https://api.openweathermap.org/data/2.5/weather',
             {
                 params: {
                     q: city,
@@ -52,7 +60,7 @@ app.get('/api/weather/:city', async (req, res) => { // Changed to /api/weather f
 
         // Extract relevant data from response
         const weatherData = response.data;
-        
+
         const result = {
             location: weatherData.name,
             country: weatherData.sys.country,
@@ -74,7 +82,7 @@ app.get('/api/weather/:city', async (req, res) => { // Changed to /api/weather f
 
     } catch (error) {
         console.error('API Error:', error.message);
-    
+
         if (error.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
